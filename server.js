@@ -1,5 +1,6 @@
-var express = require('express');
-var app = express();
+var app = require('express')();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 
 var childProcess = require("child_process");
 var dataStream = childProcess.fork("./background/data_stream");
@@ -12,7 +13,7 @@ app.get('/', function (req, res) {
   res.render('index');
 });
 
-var server = app.listen(3000, function () {
+server.listen(3000, function () {
 
   var host = server.address().address;
   var port = server.address().port;
@@ -21,10 +22,14 @@ var server = app.listen(3000, function () {
 
   dataStream.send("start");
 
-  dataStream.on('message', function(msg){
-    console.log("Recv'd message from background process.");
-    var data = msg.values;
-    console.log(data);
-	});
+  io.on('connection', function (socket) {
+  	console.log("Connection set");
+  	dataStream.on('message', function(msg){
+	    console.log("Recv'd message from background process.");
+	    var data = msg.values;
+	    socket.emit('stream', data);
+	    console.log(data);
+		});
+  });
 
 });

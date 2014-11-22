@@ -2,9 +2,21 @@
 <html>
 	<head>
 		<title>CmpE 239 Project</title>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			var d;
+		  var socket = io.connect('http://localhost');
+		  socket.on('stream', function (data) {
+		  	console.log("Client:")
+		    console.log(data);
+		    d += data;
+		    document.getElementById('something').innerHTML = "" + d;
+		  });
+		</script>
 	</head>
 	<body>
 		<h1>CmpE 239 Project</h1>
 		<p>Hello World!</p>
+		<div id="something"></div>
 	</body>
 </html>
