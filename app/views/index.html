@@ -5,7 +5,7 @@
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
 			var d;
-		  var socket = io.connect('http://localhost');
+		  var socket = io.connect('ec2-54-67-56-143.us-west-1.compute.amazonaws.com');
 		  socket.on('stream', function (data) {
 		  	console.log("Client:")
 		    console.log(data);
