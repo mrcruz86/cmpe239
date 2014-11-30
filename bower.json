@@ -2,6 +2,7 @@
 	"name" : "cmpe239",
 	"version" : "0.0.0",
 	"dependencies" : {
-		"bootstrap" : "~3.3.1"
+		"bootstrap" : "~3.3.1",
+		"angular" : "~1.2.27"
 	}
 }
