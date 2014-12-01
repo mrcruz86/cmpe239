@@ -137,6 +137,7 @@ server.listen(8000, function () {
   	}
   }, 86400000);
 
+
 // Connects with the client, when data is received from the streams, tranform it and send it to the client
   io.on('connection', function (socket) {
   	console.log("Connection set");
@@ -145,6 +146,10 @@ server.listen(8000, function () {
   	utilPrice.on('message', function(msg){
   		currentPrice = msg[1];
   		console.log("Current Price: " + currentPrice);
+  	});
+
+  	utilPrice.on('exit', function() {
+  		console.log('price process closing');
   	});
 
   	// Get current power usage from device stream
@@ -194,11 +199,11 @@ server.listen(8000, function () {
 	    // Set monthTotalCost
 
 	    // Set Array
-	    if (hour.length == 360) {
-	    	for (i = 0; i < 359; i++) {
+	    if (hour.length == 30) {
+	    	for (i = 0; i < 29; i++) {
 	    		hour[i] = hour[i + 1];
 	    	}
-	    	hour[359] = current[0];
+	    	hour[29] = current[0];
 	    } else {
 	    	hour.push(current[0]);
 	    }
@@ -262,6 +267,12 @@ server.listen(8000, function () {
 	    	thisSatTotal = dayTotal;
 	    };
 		});
-  });
 
+		socket.on('disconnect', function() {
+			console.log("disconnecting");
+		});
+  });
+	dataStream.on('exit', function() {
+		console.log('data process closing');
+	});
 });

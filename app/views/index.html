@@ -3,22 +3,24 @@
 	<head>
 		<title>CmpE 239 Project</title>
 		<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+		<link rel="stylesheet" href="css/style.css" />
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
 			var d;
+			var currentCost;
 		  var socket = io.connect('localhost/');
 		  socket.on('stream', function (data) {
 		  	console.log("Client:")
 		    console.log(data[0].at);
 		    var newDate = new Date(data[0].at);
-		    var weekday = newDate.getDay();
-		    console.log(weekday);
 		    d = data[0];
-		    document.getElementById('something').innerHTML = "" + d.at + ": " + d.value;
+		    document.getElementById('current').innerHTML = "<div id='current-time'>" + newDate.toTimeString() + "</div><div id='current-value'><h2>" + d.value.toFixed(5) + " kW</h2></div>";
 		  });
 
 		  socket.on('streamCost', function (data) {
 		  	console.log("current cost: " + data);
+		  	currentCost = data;
+		  	document.getElementById('cost').innerHTML = "<div id='current-cost'><h2>$" + currentCost.toFixed(5) + "</h2></div>";
 		  });
 
 		  // Array for last hour for graph
@@ -37,52 +39,31 @@
 		  	console.log("week total: " + data);
 		  });
 
-		  // Days of the week
-		  var days = [
-		  	{
-		  		"day" : "Monday",
-		  		"time" : [
-		  			{
-		  				"tod" : "Morning",
-		  				"average" : .543
-		  			},{
-		  				"tod" : "Noon",
-		  				"average" : .543
-		  			},{
-		  				"tod" : "Evening",
-		  				"average" : .543
-		  			},{
-		  				"tod" : "Late Night",
-		  				"average" : .543
-		  			}
-		  		]
-		  	},{
-		  		"day" : "Tuesday",
-		  	},{
-		  		"day" : "Wednesday",
-		  	},{
-		  		"day" : "Thursday",
-		  	},{
-		  		"day" : "Friday"
-		  	}
-		  ]
-
 		  var currentDate = new Date();
 		  var day = currentDate.toISOString();
 		  var dayOfWeek = currentDate.getDay();
 		  console.log(currentDate.toISOString());
 		  console.log(dayOfWeek);
 
+		 //  window.onbeforeunload = function(e) {
+			//   socket.disconnect();
+			// };
+
 		</script>
 	</head>
-	<body ng-app="cmpe239">
-		<h1>CmpE 239 Project</h1>
-		<p>Hello World!</p>
-		<div id="something"></div>
-		<div id="date"></div>
-
-
-		<script src="/bower_components/angular/angular.min.js"></script>
-		<script src="/bower_components/angular-route/angular-route.min.js"></script>
+	<body>
+		<header>
+			<h1>CmpE 239 Project</h1>
+		</header>
+		
+		<div class="container">
+			<div class="row">
+				<div id="block1" class="col-sm-5">
+					<div id="current"></div>
+					<div id="cost"></div>
+				</div>
+			</div>
+		</div>
+		
 	</body>
 </html>
