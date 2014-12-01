@@ -22,7 +22,12 @@
 		  });
 
 		  // Array for last hour for graph
-		  var hour = [];
+		  var hour;
+
+		  socket.on('hour', function (data) {
+		  	hour = data;
+		  	console.log(hour);
+		  });
 
 		  socket.on('day', function (data) {
 		  	console.log("day total: " + data);

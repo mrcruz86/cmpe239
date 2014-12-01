@@ -23,11 +23,76 @@ var dayTotalCost = 0;
 
 // Week's Total
 var weekTotal = 0;
-var weekTotalCost;
+var weekTotalCost = 0;
 
 // Month's Total
 var monthTotal;
 var monthTotalCost;
+
+// Average Variables
+var oldDateValue;
+
+var sun = {
+	"sunCount" : 0,
+	"sunTotal" : 0,
+	"sunAverage" : 0,
+	"mornAverage" : 0,
+	"noonAverage" : 0,
+	"eveningAverage" : 0,
+	"lateAverage": 0 };
+var mon = {
+	"monCount" : 0,
+	"monTotal" : 0,
+	"monAverage" : 0,
+	"mornAverage" : 0,
+	"noonAverage" : 0,
+	"eveningAverage" : 0,
+	"lateAverage": 0 };
+var tue = {
+	"tueCount" : 0,
+	"tueTotal" : 0,
+	"tueAverage" : 0,
+	"mornAverage" : 0,
+	"noonAverage" : 0,
+	"eveningAverage" : 0,
+	"lateAverage": 0 };
+var wed = {
+	"wedCount" : 0,
+	"wedTotal" : 0,
+	"wedAverage" : 0,
+	"mornAverage" : 0,
+	"noonAverage" : 0,
+	"eveningAverage" : 0,
+	"lateAverage": 0 };
+var thur ={
+	"thurCount" : 0,
+	"thurTotal" : 0,
+	"thurAverage" : 0,
+	"mornAverage" : 0,
+	"noonAverage" : 0,
+	"eveningAverage" : 0,
+	"lateAverage": 0 };
+var fri = {
+	"friCount" : 0,
+	"friTotal" : 0,
+	"friAverage" : 0,
+	"mornAverage" : 0,
+	"noonAverage" : 0,
+	"eveningAverage" : 0,
+	"lateAverage": 0 };
+var sat = {
+	"satCount" : 0,
+	"satTotal" : 0,
+	"satAverage" : 0,
+	"mornAverage" : 0,
+	"noonAverage" : 0,
+	"eveningAverage" : 0,
+	"lateAverage": 0 };
+
+var mornAverage;
+var noonAverage;
+var eveningAverage;
+var lateAverage;
 
 
 // Setup routes
@@ -52,6 +117,25 @@ server.listen(8000, function () {
 // Starts background processes for data stream from device and utility price
   dataStream.send("start");
   utilPrice.send("start");
+
+  setInterval(function() {
+  	var d = new Date().getDay();
+  	if (d == 0) {
+  		sun.sunCount += 1;
+  	} else if (d == 1) {
+  		mon.monCount += 1;
+  	} else if (d == 2) {
+  		tue.tueCount += 1;
+  	} else if (d == 3) {
+  		wed.wedCount += 1;
+  	} else if (d == 4) {
+  		thur.thurCount += 1;
+  	} else if (d == 5) {
+  		fri.friCount += 1;
+  	} else if (d == 6) {
+  		sat.satCount += 1;
+  	}
+  }, 86400000);
 
 // Connects with the client, when data is received from the streams, tranform it and send it to the client
   io.on('connection', function (socket) {
@@ -114,13 +198,69 @@ server.listen(8000, function () {
 	    	for (i = 0; i < 359; i++) {
 	    		hour[i] = hour[i + 1];
 	    	}
-	    	hour[359] = current;
+	    	hour[359] = current[0];
 	    } else {
 	    	hour.push(current[0]);
 	    }
 	    socket.emit('hour', hour);
 	    console.log(hour);
 
+	    //================================================//
+	    // Averages:
+	    var thisSunTotal = 0;
+	    var thisMonTotal = 0;
+	    var thisTueTotal = 0;
+	    var thisWedTotal = 0;
+	    var thisThurTotal = 0;
+	    var thisFriTotal = 0;
+	    var thisSatTotal = 0;
+	    var daySegTotal = 0;
+	    var feedHour = new Date(msg.values[0].at).getHours();
+	    if (today == 0) {
+	    	sat.satTotal += thisSatTotal;
+	    	sat.satAverage = (sat.satTotal / sat.satCount);
+	    	thisSatTotal = 0;
+	    	thisSunTotal = dayTotal;
+	    	// while (feedHour > 0 || feedHour < 6) {
+	    	// 	daySegTotal += current[0].value;
+	    	// }
+	    };
+	    if (today == 1) {
+	    	sun.sunTotal += thisSunTotal;
+	    	sun.sunAverage = (sun.sunTotal / sun.sunCount);
+	    	thisSunTotal = 0;
+	    	thisMonTotal = dayTotal;
+	    };
+	    if (today == 2) {
+	    	mon.monTotal += thisMonTotal;
+	    	mon.monAverage = (mon.monTotal / mon.monCount);
+	    	thisMonTotal = 0;
+	    	thisTueTotal = dayTotal;
+	    };
+	    if (today == 3) {
+	    	tue.tueTotal += thisTueTotal;
+	    	tue.tueAverage = (tue.tueTotal / tue.tueCount);
+	    	thisTueTotal = 0;
+	    	thisWedTotal = dayTotal;
+	    };
+	    if (today == 4) {
+	    	wed.wedTotal += thisWedTotal;
+	    	wed.wedAverage = (wed.wedTotal / wed.wedCount);
+	    	thisWedTotal = 0;
+	    	thisThurTotal = dayTotal;
+	    };
+	    if (today == 5) {
+	    	thur.thurTotal += thisThurTotal;
+	    	thur.thurAverage = (thur.thurTotal / thur.thurCount);
+	    	thisThurTotal = 0;
+	    	thisFriTotal = dayTotal;
+	    };
+	    if (today == 6) {
+	    	fri.friTotal += thisFriTotal;
+	    	fri.friAverage = (fri.friTotal / fri.friCount);
+	    	thisFriTotal = 0;
+	    	thisSatTotal = dayTotal;
+	    };
 		});
   });
 
