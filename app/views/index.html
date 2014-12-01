@@ -6,21 +6,34 @@
 		<link rel="stylesheet" href="css/style.css" />
 		<script src="/socket.io/socket.io.js"></script>
 		<script>
+			var timestamp = "";
 			var d;
 			var currentCost;
 		  var socket = io.connect('localhost/');
+
+		  socket.emit('request', timestamp);
+
+		  socket.on('timestamp', function(data) {
+		  	timestamp = data;
+		  });
+
+		  setInterval(function() {
+		  	socket.emit('request', timestamp);
+		  }, 1000);
+
 		  socket.on('stream', function (data) {
 		  	console.log("Client:")
 		    console.log(data[0].at);
 		    var newDate = new Date(data[0].at);
 		    d = data[0];
-		    document.getElementById('current').innerHTML = "<div id='current-time'>" + newDate.toTimeString() + "</div><div id='current-value'><h2>" + d.value.toFixed(5) + " kW</h2></div>";
+		    document.getElementById('current-time').innerHTML = "<div id='c-time'>" + newDate.toString() + "</div>";
+		    document.getElementById('current-value').innerHTML = "<div id='c-value'><h2>" + d.value.toFixed(5) + " kW</h2></div>";
 		  });
 
 		  socket.on('streamCost', function (data) {
 		  	console.log("current cost: " + data);
 		  	currentCost = data;
-		  	document.getElementById('cost').innerHTML = "<div id='current-cost'><h2>$" + currentCost.toFixed(5) + "</h2></div>";
+		  	document.getElementById('current-cost').innerHTML = "<div id='c-cost'><h2>&cent" + currentCost.toFixed(5) + "</h2></div>";
 		  });
 
 		  // Array for last hour for graph
@@ -33,21 +46,52 @@
 
 		  socket.on('day', function (data) {
 		  	console.log("day total: " + data);
+		  	document.getElementById('today-value').innerHTML = "<div id='t-value'><h2>" + data.toFixed(5) + " kW</h2></div>";
+		  });
+
+		  socket.on('dayCost', function (data) {
+		  	console.log("day total cost: " + data);
+		  	document.getElementById('today-cost').innerHTML = "<div id='t-cost'><h2>&cent" + data.toFixed(5) + "</h2></div>";
 		  });
 
 		  socket.on('week', function (data) {
 		  	console.log("week total: " + data);
+		  	document.getElementById('week-value').innerHTML = "<div id='w-value'><h2>" + data.toFixed(5) + " kW</h2></div>";
 		  });
 
-		  var currentDate = new Date();
-		  var day = currentDate.toISOString();
-		  var dayOfWeek = currentDate.getDay();
-		  console.log(currentDate.toISOString());
-		  console.log(dayOfWeek);
+		  socket.on('weekCost', function (data) {
+		  	console.log("week total cost: " + data);
+		  	document.getElementById('week-cost').innerHTML = "<div id='w-cost'><h2>&cent" + data.toFixed(5) + "</h2></div>";
+		  });
 
-		 //  window.onbeforeunload = function(e) {
-			//   socket.disconnect();
-			// };
+
+			socket.on('sun', function(data) {
+
+			});
+
+			socket.on('mon', function(data) {
+
+			});
+
+			socket.on('tue', function(data) {
+
+			});
+
+			socket.on('wed', function(data) {
+
+			});
+
+			socket.on('thur', function(data) {
+
+			});
+
+			socket.on('fri', function(data) {
+
+			});
+
+			socket.on('sat', function(data) {
+
+			});
 
 		</script>
 	</head>
@@ -59,8 +103,28 @@
 		<div class="container">
 			<div class="row">
 				<div id="block1" class="col-sm-5">
-					<div id="current"></div>
-					<div id="cost"></div>
+					<div id="current-time"></div>
+					<div id="current-value" class="col-sm-5"></div>
+					<div class="col-sm-1" style="font-size:3em">=</div>
+					<div id="current-cost" class="col-sm-5"></div>
+					<div class="col-sm-1" style="margin-left:-2em; padding-top:1.5em;">current</div>
+					<div id="today-value" class="col-sm-5"></div>
+					<div class="col-sm-1" style="font-size:3em">=</div>
+					<div id="today-cost" class="col-sm-5"></div>
+					<div class="col-sm-1" style="margin-left:-2em; padding-top:1.5em;">today</div>
+					<div id="week-value" class="col-sm-5"></div>
+					<div class="col-sm-1" style="font-size:3em">=</div>
+					<div id="week-cost" class="col-sm-5"></div>	
+					<div class="col-sm-1" style="margin-left:-2em; padding-top:1.5em;">week</div>
+				</div>
+				<div id="block2" class="col-sm-7">
+
+				</div>
+				<div id="block3" class="col-sm-5">
+				
+				</div>
+				<div id="block4" class="col-sm-7">
+					
 				</div>
 			</div>
 		</div>
