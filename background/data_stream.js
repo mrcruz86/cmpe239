@@ -2,7 +2,9 @@ var https = require('https');
 
 process.on('message', function(msg) {
 
-    setInterval(function() {
+    // clearInterval(stream);
+
+    var getData = function() {
 
         var currentTime = new Date();
         var endTime = currentTime.toISOString();
@@ -21,27 +23,27 @@ process.on('message', function(msg) {
             headers: {'X-M2X-KEY' : '5b526fd341164a34b98ff576f7e2cbc9'}
         };
          
-        console.info('Options prepared:');
-        console.info(optionsget);
-        console.info('Do the GET call');
+        // console.info('Options prepared:');
+        // console.info(optionsget);
+        // console.info('Do the GET call');
          
         // do the GET request
         var reqGet = https.request(optionsget, function(res) {
-            console.log("statusCode: ", res.statusCode);
+            console.log("DATA: statusCode: ", res.statusCode);
             // uncomment it for header details
         //  console.log("headers: ", res.headers);
          
          
             res.on('data', function(d) {
-                console.info('GET result:\n');
+                // console.info('GET result:\n');
                 var j = JSON.parse(d);
-                console.info(j);
-                console.info('\n\nCall completed');
+                // console.info(j);
+                // console.info('\n\nCall completed');
                 if (j.values.length == 0) {
                     j.values.push({'at' : endTime, 'value' : 0});
-                    console.info("in empty value");
+                    // console.info("in empty value");
                 }
-                console.info(j);
+                console.info("DATA: " + JSON.stringify(j.values[0]));
                 process.send(j);
             });
          
@@ -51,6 +53,8 @@ process.on('message', function(msg) {
         reqGet.on('error', function(e) {
             console.error(e);
         });
-    }, 10000);
+    }
+    getData();
+    var stream = setInterval(getData, 10000);
 
 });

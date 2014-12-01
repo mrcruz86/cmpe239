@@ -2,7 +2,9 @@ var http = require('http');
 
 process.on('message', function(msg) {
 
-    setInterval(function() {
+    clearInterval(daily);
+
+    var getPrice = function() {
 
         var currentTime = new Date();
         var endTime = currentTime.toISOString();
@@ -20,23 +22,23 @@ process.on('message', function(msg) {
             method : 'GET' // do GET
         };
          
-        console.info('Price Options prepared:');
-        console.info(optionsget);
-        console.info('Do the Price GET call');
+        // console.info('Price Options prepared:');
+        // console.info(optionsget);
+        // console.info('Do the Price GET call');
          
         // do the GET request
         var reqGet = http.request(optionsget, function(res) {
-            console.log("Price statusCode: ", res.statusCode);
+            console.log("PRICE: statusCode: ", res.statusCode);
             // uncomment it for header details
             // console.log("headers: ", res.headers);
          
          
             res.on('data', function(d) {
-                console.info('GET PRICE result:\n');
+                // console.info('GET PRICE result:\n');
                 var j = JSON.parse(d);
                 // console.info(j);
-                console.info('\n\nPrice Call completed');
-                console.info(j.series[0].data[0]);
+                // console.info('\n\nPrice Call completed');
+                console.info("PRICE: " + j.series[0].data[0][1]);
                 process.send(j.series[0].data[0]);
             });
          
@@ -46,6 +48,8 @@ process.on('message', function(msg) {
         reqGet.on('error', function(e) {
             console.error(e);
         });
-    }, 10000);
+    }
+    getPrice();
+    var daily = setInterval(getPrice, 86400000);
 
 });
