@@ -3,6 +3,7 @@ var https = require('https');
 process.on('message', function(msg) {
 
     // clearInterval(stream);
+    var feedDate;
 
     var getData = function() {
 
@@ -44,7 +45,12 @@ process.on('message', function(msg) {
                     // console.info("in empty value");
                 }
                 console.info("DATA: " + JSON.stringify(j.values[0]));
-                process.send(j);
+                if (feedDate != j.values[0].at.toString()) {
+                    process.send(j);
+                }
+                
+                feedDate = new Date(j.values[0].at).toString();
+                
             });
          
         });

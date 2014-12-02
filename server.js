@@ -116,13 +116,15 @@ var noonAverage;
 var eveningAverage;
 var lateAverage;
 
+var d;
+
 //======================================================//
 //=================== Server Logic =====================//
 //======================================================//
 
 // Setup the day of the week count
 var getDay = function() {
-	var d = new Date().getDay();
+	d = new Date().getDay();
 	if (d == 0) {
 		sun.sunCount += 1;
 		console.log("SERVER: Sunday #" + sun.sunCount);
@@ -168,11 +170,11 @@ dataStream.on('message', function(msg) {
 	console.log("SERVER: Current Cost: " + currentCost);
 
 	// Set dayTotal and dayTotalCost
-  var today = new Date().getDay();
-  console.log("Today is " + today);
+  // var today = new Date().getDay();
+  // console.log("Today is " + today);
   var feedDate = new Date(msg.values[0].at).getDay();
   console.log("Feed day is " + feedDate);
-  if (today == feedDate) {
+  if (d == feedDate) {
   	console.log("Value to be added to day: " + msg.values[0].value);
   	// Set dayTotal
   	dayTotal = dayTotal + msg.values[0].value;
@@ -184,7 +186,7 @@ dataStream.on('message', function(msg) {
   }
 
   // Set weekTotal and weekTotal Cost
-  if (today == 0) {
+  if (d == 0) {
   	weekTotal = dayTotal;
   	weekTotalCost = dayTotalCost;
   } else {
@@ -224,7 +226,7 @@ dataStream.on('message', function(msg) {
   var thisSatTotal = 0;
   var daySegTotal = 0;
   var feedHour = new Date(msg.values[0].at).getHours();
-  if (today == 0) {
+  if (d == 0) {
   	sat.satTotal += thisSatTotal;
   	sat.satAverage = (sat.satTotal / sat.satCount);
   	thisSatTotal = 0;
@@ -232,7 +234,7 @@ dataStream.on('message', function(msg) {
   	console.log("SERVER:");
   	console.log(sat);
   };
-  if (today == 1) {
+  if (d == 1) {
   	sun.sunTotal += thisSunTotal;
   	sun.sunAverage = (sun.sunTotal / sun.sunCount);
   	thisSunTotal = 0;
@@ -240,7 +242,7 @@ dataStream.on('message', function(msg) {
   	console.log("SERVER:");
   	console.log(sun);
   };
-  if (today == 2) {
+  if (d == 2) {
   	mon.monTotal += thisMonTotal;
   	mon.monAverage = (mon.monTotal / mon.monCount);
   	thisMonTotal = 0;
@@ -248,7 +250,7 @@ dataStream.on('message', function(msg) {
   	console.log("SERVER:");
   	console.log(mon);
   };
-  if (today == 3) {
+  if (d == 3) {
   	tue.tueTotal += thisTueTotal;
   	tue.tueAverage = (tue.tueTotal / tue.tueCount);
   	thisTueTotal = 0;
@@ -256,7 +258,7 @@ dataStream.on('message', function(msg) {
   	console.log("SERVER:");
   	console.log(tue);
   };
-  if (today == 4) {
+  if (d == 4) {
   	wed.wedTotal += thisWedTotal;
   	wed.wedAverage = (wed.wedTotal / wed.wedCount);
   	thisWedTotal = 0;
@@ -264,7 +266,7 @@ dataStream.on('message', function(msg) {
   	console.log("SERVER:");
   	console.log(wed);
   };
-  if (today == 5) {
+  if (d == 5) {
   	thur.thurTotal += thisThurTotal;
   	thur.thurAverage = (thur.thurTotal / thur.thurCount);
   	thisThurTotal = 0;
@@ -272,7 +274,7 @@ dataStream.on('message', function(msg) {
   	console.log("SERVER:");
   	console.log(thur);
   };
-  if (today == 6) {
+  if (d == 6) {
   	fri.friTotal += thisFriTotal;
   	fri.friAverage = (fri.friTotal / fri.friCount);
   	thisFriTotal = 0;

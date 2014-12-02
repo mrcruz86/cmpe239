@@ -9,7 +9,7 @@
 			var timestamp = "";
 			var d;
 			var currentCost;
-		  var socket = io.connect('http://ec2-54-67-74-154.us-west-1.compute.amazonaws.com/');
+		  var socket = io.connect('http://ec2-54-67-74-154.us-west-1.compute.amazonaws.com');
 
 		  socket.emit('request', timestamp);
 
@@ -105,15 +105,15 @@
 				<div id="block1" class="col-sm-5">
 					<div id="current-time"></div>
 					<div id="current-value" class="col-sm-5"></div>
-					<div class="col-sm-1" style="font-size:3em">=</div>
+					<div class="col-sm-1" style="font-size:2em">=</div>
 					<div id="current-cost" class="col-sm-5"></div>
 					<div class="col-sm-1" style="margin-left:-2em; padding-top:1.5em;">current</div>
 					<div id="today-value" class="col-sm-5"></div>
-					<div class="col-sm-1" style="font-size:3em">=</div>
+					<div class="col-sm-1" style="font-size:2em">=</div>
 					<div id="today-cost" class="col-sm-5"></div>
 					<div class="col-sm-1" style="margin-left:-2em; padding-top:1.5em;">today</div>
 					<div id="week-value" class="col-sm-5"></div>
-					<div class="col-sm-1" style="font-size:3em">=</div>
+					<div class="col-sm-1" style="font-size:2em">=</div>
 					<div id="week-cost" class="col-sm-5"></div>	
 					<div class="col-sm-1" style="margin-left:-2em; padding-top:1.5em;">week</div>
 				</div>
