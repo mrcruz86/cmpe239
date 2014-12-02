@@ -22,3 +22,26 @@ header h1 {
 #block1 h2 {
 	font-size: 1.5em;
 }
+
+/* tell the SVG path to be a thin blue line without any area fill */
+.line {
+	stroke: cyan;
+	stroke-width: 2;
+	fill: none;
+}
+path {
+	stroke: black;
+	stroke-width: 1;
+	fill: none;
+}
+
+#block3 {
+	padding: 1em;
+	height: 20em;
+	text-align: center;
+}
+
+#block3 h2 {
+	padding-top: 2em; 
+	font-size: 3em;
+}

@@ -5,11 +5,13 @@
 		<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
 		<link rel="stylesheet" href="css/style.css" />
 		<script src="/socket.io/socket.io.js"></script>
+		<script src="http://d3js.org/d3.v2.js"></script>
 		<script>
 			var timestamp = "";
+			var newdata = [];
 			var d;
 			var currentCost;
-		  var socket = io.connect('http://ec2-54-67-74-154.us-west-1.compute.amazonaws.com');
+		  var socket = io.connect('http://ec2-54-67-74-154.us-west-1.compute.amazonaws.com'); 
 
 		  socket.emit('request', timestamp);
 
@@ -28,6 +30,16 @@
 		    d = data[0];
 		    document.getElementById('current-time').innerHTML = "<div id='c-time'>" + newDate.toString() + "</div>";
 		    document.getElementById('current-value').innerHTML = "<div id='c-value'><h2>" + d.value.toFixed(5) + " kW</h2></div>";
+
+		    if(d.value >= 0.9 && d.value < 1.2) {
+		    	document.getElementById('block3').innerHTML = "<h2 style='color:green;'>LED is ON</h2>";
+		    } else if (d.value >= 1.2) {
+		    	document.getElementById('block3').innerHTML = "<h3 style='color:orange;'>Using above average energy, please check device</h3>";
+		    } else if (d.value < 0.9 && d.value > 0.05) {
+		    	document.getElementById('block3').innerHTML = "<h3 style='color:orange;'>Energy consumption is low, or there is a leak, please check device</h3>";
+		    } else if (d.value > 0.01 && d.value <= 0.05) {
+		    	document.getElementById('block3').innerHTML = "<h2>LED is OFF</h2>";
+		    }
 		  });
 
 		  socket.on('streamCost', function (data) {
@@ -36,12 +48,28 @@
 		  	document.getElementById('current-cost').innerHTML = "<div id='c-cost'><h2>&cent" + currentCost.toFixed(5) + "</h2></div>";
 		  });
 
+		  socket.on('zero', function (data) {
+		  	var z = data;
+		  	if (z > 3) {
+		  		document.getElementById('block3').innerHTML = "<h3 style='color:red;'>Device is disconnected, please check device</h3>";
+		  	}
+		  });
+
 		  // Array for last hour for graph
 		  var hour;
 
 		  socket.on('hour', function (data) {
-		  	hour = data;
-		  	console.log(hour);
+			 //  if (newdata.length == 30) {
+				// 	for (i = 0; i < 29; i++) {
+				// 		newdata[i] = newdata[i + 1];
+				// 	}
+				// 	newdata[29] = data[0];
+				// } else {
+				// 	newdata.push(data[0]);
+				// } 
+				newdata = data.slice(0);
+				document.getElementById('viz').innerHTML = "";
+				lineDraw(newdata);
 		  });
 
 		  socket.on('day', function (data) {
@@ -66,36 +94,37 @@
 
 
 			socket.on('sun', function(data) {
-
+				console.log("Sunday stats: " + data);
 			});
 
 			socket.on('mon', function(data) {
-
+				console.log("Monday stats: " + data);
 			});
 
 			socket.on('tue', function(data) {
-
+				console.log("Tuesday stats: " + data);
 			});
 
 			socket.on('wed', function(data) {
-
+				console.log("Wednesday stats: " + data);
 			});
 
 			socket.on('thur', function(data) {
-
+				console.log("Thursday stats: " + data);
 			});
 
 			socket.on('fri', function(data) {
-
+				console.log("Friday stats: " + data);
 			});
 
 			socket.on('sat', function(data) {
-
+				console.log("Satday stats: " + data);
 			});
 
 		</script>
 	</head>
 	<body>
+		<img src="images/head.png" width="100%">
 		<header>
 			<h1>CmpE 239 Project</h1>
 		</header>
@@ -118,16 +147,67 @@
 					<div class="col-sm-1" style="margin-left:-2em; padding-top:1.5em;">week</div>
 				</div>
 				<div id="block2" class="col-sm-7">
-
-				</div>
-				<div id="block3" class="col-sm-5">
+					<div id="viz"></div>
+					<script>
+						function lineDraw(newdata){
+							var margin = {
+							top: 30,
+							right: 20,
+							bottom: 30,
+							left: 50
+							},
+							width = 600 - margin.left - margin.right,
+							height = 270 - margin.top - margin.bottom;
+							var x = d3.time.scale().range([0, width]);
+							var y = d3.scale.linear().range([height, 0]);
+							var xAxis = d3.svg.axis().scale(x).orient("bottom").ticks(d3.time.minutes, 1);
+							var yAxis = d3.svg.axis().scale(y).orient("left");	
+							var vis = d3.select("#viz")
+				            .append("svg:svg")
+				            .attr("width", width + margin.left + margin.right)
+				            .attr("height", height + margin.top + margin.bottom)
+				            .append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+							newdata.forEach(function (d) {
+							d.x_axis = d3.time.format("%Y-%m-%dT%H:%M:%S.%LZ").parse(d.at);
+							d.y_axis = +d.value;
+							console.log(d);
+						});
 				
+						x.domain(d3.extent(newdata, function (d) {return d.x_axis;}));
+						y.domain(d3.extent(newdata, function (d) {return d.y_axis;}));
+							var line = d3.svg.line()
+							.x(function (d) {
+								console.log(d.x_axis);
+								return x(d.x_axis);
+							})
+							.y(function (d) {
+								return y(d.y_axis);
+							})
+							.interpolate("linear");
+
+						vis.append("g")
+							.attr("class", "x axis")
+							.attr("transform", "translate(0," + height + ")")
+							.call(xAxis);
+
+						vis.append("g")
+							.attr("class", "y axis")
+							.call(yAxis);
+
+						vis.append("svg:path")
+							.attr("class", "line")
+							.attr("d", line(newdata));
+						}
+					
+					</script>
 				</div>
-				<div id="block4" class="col-sm-7">
+				<div id="block3" class="col-sm-12">
 					
 				</div>
 			</div>
 		</div>
+
+		<img src="images/foot.png" width="100%" style="postition:relative; bottom:0;">
 		
 	</body>
 </html>

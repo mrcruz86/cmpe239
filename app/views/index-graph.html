@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Energy consumption</title>
+	
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="http://d3js.org/d3.v2.js"></script>
+		<style>
+			/* tell the SVG path to be a thin blue line without any area fill */
+			.line {
+				stroke: cyan;
+				stroke-width: 2;
+				fill: none;
+			}
+			path {
+				stroke: black;
+				stroke-width: 1;
+				fill: none;
+			}
+		</style>
+		<script>
+			var newdata=[];
+			var socket = io.connect('http://localhost');
+			socket.on('hour', function (data) {
+			if (newdata.length == 30) {
+				for (i = 0; i < 29; i++) {
+				newdata[i] = newdata[i + 1];
+			}
+			newdata[29] = data[0];
+			} else {
+			newdata.push(data[0]);
+			} 
+			document.getElementById('viz').innerHTML = "";
+			lineDraw(newdata);
+			});
+			</script>
+			
+		</head>
+		<body>
+		<header>			
+				<div class="container">
+					<div class="content-wrapper-middle">
+						
+					</div>
+				</div>			
+		</header>
+			<div id="viz"></div>
+			<script>
+			function lineDraw(newdata){
+			var margin = {
+			top: 30,
+			right: 20,
+			bottom: 30,
+			left: 50
+			},
+			width = 600 - margin.left - margin.right,
+			height = 270 - margin.top - margin.bottom;
+			var x = d3.time.scale().range([0, width]);
+			var y = d3.scale.linear().range([height, 0]);
+			var xAxis = d3.svg.axis().scale(x).orient("bottom").ticks(d3.time.minutes, 1);
+			var yAxis = d3.svg.axis().scale(y).orient("left");	
+			var vis = d3.select("#viz")
+            .append("svg:svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			newdata.forEach(function (d) {
+			d.x_axis = d3.time.format("%Y-%m-%dT%H:%M:%S.%LZ").parse(d.at);
+			d.y_axis = +d.value;
+			console.log(d);
+		});
+	
+			x.domain(d3.extent(newdata, function (d) {return d.x_axis;}));
+			y.domain(d3.extent(newdata, function (d) {return d.y_axis;}));
+				var line = d3.svg.line()
+				.x(function (d) {
+					console.log(d.x_axis);
+					return x(d.x_axis);
+				})
+				.y(function (d) {
+					return y(d.y_axis);
+				})
+				.interpolate("linear");
+
+			vis.append("g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + height + ")")
+				.call(xAxis);
+
+			vis.append("g")
+				.attr("class", "y axis")
+				.call(yAxis);
+
+			vis.append("svg:path")
+				.attr("class", "line")
+				.attr("d", line(newdata));
+			}
+			
+			</script>
+
+	</body>
+</html>

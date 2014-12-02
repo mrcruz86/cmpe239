@@ -117,6 +117,7 @@ var eveningAverage;
 var lateAverage;
 
 var d;
+var zeroCount = 0;
 
 //======================================================//
 //=================== Server Logic =====================//
@@ -159,6 +160,14 @@ utilPrice.on('message', function(msg){
 
 // Set Array
 dataStream.on('message', function(msg) {
+
+	//Set zeroCount looking for disconnect
+	if (msg.values[0].value == 0) {
+		zeroCount++;
+	} else {
+		zeroCount = 0;
+	}
+
 	// Set current usage
 	current = msg.values;
 	// socket.emit('stream', current);
@@ -202,10 +211,17 @@ dataStream.on('message', function(msg) {
   // Set monthTotalCost
 
 	if (hour.length == 30) {
-		for (i = 0; i < 29; i++) {
-			hour[i] = hour[i + 1];
+		if (msg.values[0].value != 0) {
+			for (i = 0; i < 29; i++) {
+				hour[i] = hour[i + 1];
+			}
+			hour[29] = msg.values[0];
+		} else if (msg.values[0].value == 0 && zeroCount > 3) {
+			for (i = 0; i < 29; i++) {
+				hour[i] = hour[i + 1];
+			}
+			hour[29] = msg.values[0];
 		}
-		hour[29] = msg.values[0];
 	} else {
 		hour.push(msg.values[0]);
 	}
@@ -306,6 +322,7 @@ io.on('connection', function(socket) {
 			socket.emit('thur', thur);
 			socket.emit('fri', fri);
 			socket.emit('sat', sat);
+			socket.emit('zero', zeroCount);
 		}
 	});
 });
